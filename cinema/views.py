@@ -1,5 +1,3 @@
-from zoneinfo import available_timezones
-
 from django.db.models import F, Count
 from rest_framework import viewsets
 
@@ -95,12 +93,13 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         movie = self.request.query_params.get("movie")
         date = self.request.query_params.get("date")
         if movie:
-            queryset = queryset.filter(movie__id__in=movie)
+            queryset = queryset.filter(movie__id=movie)
         if date:
             queryset = queryset.filter(show_time__date=date)
         if self.action == "list":
-            queryset = queryset.select_related().annotate(tickets_available= F("cinema_hall__rows") * F("cinema_hall__seats_in_row") - Count("tickets"))
-        return queryset.annotate()
+            queryset = queryset.select_related().annotate(
+                tickets_available=F("cinema_hall__rows") * F("cinema_hall__seats_in_row") - Count("tickets"))
+        return queryset
 
 
 class OrderViewSet(viewsets.ModelViewSet):
